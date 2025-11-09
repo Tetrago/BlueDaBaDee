@@ -71,7 +71,7 @@ noPasswd() {
   fi
 }
 sudoGroup() {
-  if check "grep jolyne /etc/group | grep -q -e sudo -e wheel" true "jolyne is part of sudo/wheel group"; then
+  if check "grep jolyne /etc/group | grep -q -e sudo -e wheel" false "jolyne is part of sudo/wheel group"; then
     correct=$(($correct+1))
   fi
 }
@@ -86,12 +86,17 @@ uidRoot() {
   fi
 }
 admUser() {
-  if check "grep jonathan /etc/group | grep -q adm" false "jonathan is part of adm group"; then
+  if check "grep speedwagon /etc/group | grep -q adm" false "jonathan is part of adm group"; then
     correct=$(($correct+1))
   fi
 }
-dialUser() {
-  if check "grep josuke /etc/group | grep -q dialout" false "josuke is part of dialout group"; then
+dockerUser() {
+  if check "grep jonathan /etc/group | grep -q docker" false "josuke is part of dialout group"; then
+    correct=$(($correct+1))
+  fi
+}
+lxdUser() {
+  if check "grep josuke /etc/group | grep -q lxd" false "josuke is part of dialout group"; then
     correct=$(($correct+1))
   fi
 }
@@ -105,6 +110,37 @@ noShadow() {
     correct=$(($correct+1))
   fi
 }
+permPasswd() {
+  if check "ls -l /etc/passwd | grep -q 'rw-r--r--'" true "Anyone can write to /etc/passwd"; then
+    correct=$(($correct+1))
+  fi
+}
+permShadow() {
+  if check "ls -l /etc/shadow | grep -q 'rw-r-----'" true "Anyone can read /etc/shadow, allowing them to grab and crack hashes"; then
+    correct=$(($correct+1))
+  fi
+}
+permGroup() {
+  if check "ls -l /etc/group | grep -q 'rw-r--r--'" true "Anyone can write to /etc/group, allowing them to modify groups"; then
+    correct=$(($correct+1))
+  fi
+}
+permGshadow() {
+  if check "ls -l /etc/gshadow | grep -q 'rw-r-----'" true "Anyone can read /etc/gshadow, allowing them to grab and crack group hashes"; then
+    correct=$(($correct+1))
+  fi
+}
+gshadowPass() {
+  if check "grep -q -e '^sudo:[!*]?:' -e '^wheel:[!*]?:' /etc/gshadow" true "The sudo/wheel group has a passwd, allowing users to login to the group"; then
+    correct=$(($correct+1))
+  fi
+}
+gshadowPass() {
+  if check "grep -e '^sudo:' -e '^wheel:' /etc/gshadow | grep -q joseph" false "josesph is an admin for the sudo/wheel group"; then
+    correct=$(($correct+1))
+  fi
+}
+
 
 
 ###################
@@ -221,7 +257,7 @@ pamPermit() {
 ####################
 
 checkUser() {
-  numTests=$(grep -c -e "^user " config.txt)
+  numTests=$(grep -c -e "^user " currentSet.txt)
   printf "${BOLD}USERS\n===================${CLEAR}\n"
   correct=0
 
@@ -237,7 +273,7 @@ checkUser() {
 }
 
 checkPermissions() {
-  numTests=$(grep -c -e "^permissions " config.txt)
+  numTests=$(grep -c -e "^permissions " currentSet.txt)
   printf "${BOLD}PERMISSIONS\n===================${CLEAR}\n"
   correct=0
 
@@ -253,7 +289,7 @@ checkPermissions() {
 }
 
 checkSystem() {
-  numTests=$(grep -c -e "^system " config.txt)
+  numTests=$(grep -c -e "^system " currentSet.txt)
   printf "${BOLD}SYSTEM\n===================${CLEAR}\n"
   correct=0
   

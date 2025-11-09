@@ -1,3 +1,0 @@
-user 1 sudoGroup
-user 1 uidRoot
-user 1 admUser

