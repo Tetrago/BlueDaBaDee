@@ -81,7 +81,7 @@ sshKey() {
   fi
 }
 uidRoot() {
-  if check "awk -F: '{print \$1\" \"\$3}' /etc/passwd | grep joseph | grep -q 0" false "joseph has UID 0"; then
+  if check "awk -F: '{print \$1\" \"\$3}' /etc/passwd | grep joseph | grep -q -e \" 0$\"" false "joseph has UID 0"; then
     correct=$(($correct+1))
   fi
 }
@@ -101,7 +101,7 @@ lxdUser() {
   fi
 }
 typoUser() {
-  if check "grep -q -e kernpoops -e /usr/bin/nologin /etc/passwd" false "Typosquat user kernpoops impersonating kernoops & Typosquat login shell /usr/bin/nologin impersonating /usr/sbin/nologin"; then
+  if check "grep -e kernpoops /etc/passwd | grep -q -e /usr/bin/nologin" false "Typosquat user kernpoops impersonating kernoops & Typosquat login shell /usr/bin/nologin impersonating /usr/sbin/nologin"; then
     correct=$(($correct+1))
   fi
 }
