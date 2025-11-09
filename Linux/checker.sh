@@ -131,7 +131,7 @@ permGshadow() {
   fi
 }
 gshadowPass() {
-  if check "grep -q -e '^sudo:[!*]?:' -e '^wheel:[!*]?:' /etc/gshadow" true "The sudo/wheel group has a passwd, allowing users to login to the group"; then
+  if check "grep -q -e '^sudo:[!*]\?:' -e '^wheel:[!*]\?:' /etc/gshadow" true "The sudo/wheel group has a passwd, allowing users to login to the group"; then
     correct=$(($correct+1))
   fi
 }
