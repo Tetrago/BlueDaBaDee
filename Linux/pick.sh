@@ -52,7 +52,7 @@ done
 printf "${GREEN}MinDifficulty:${CLEAR} $MIN_DIFF_LVL\n${GREEN}MaxDifficulty:${CLEAR} $MAX_DIFF_LVL\n" >&2
 
 if [ "$MODULES" = "all" ]; then
-  cp config.txt currentSet.txt
+  grep -e " [$MIN_DIFF_LVL-$MAX_DIFF_LVL] " config.txt > currentSet.txt
 else
   moduleGrep="$(echo "$MODULES" | sed 's/,/ " -e "^/g')"
   functionGrep="$(echo "$MODULES" | sed 's/,/$" -e " /g')"
