@@ -27,6 +27,14 @@ fi
 
 RANDOM=$$$(date +%s)
 
+safeUseradd() {
+  if grep -q -e "^$1" /etc/group; then
+    useradd -g "$1" "$1"
+  else
+    useradd "$1"
+  fi
+}
+
 #############
 #   USERS   #
 #############
@@ -50,20 +58,20 @@ uidRoot() {
   sed -i "s/joseph:x:[^:]*:/joseph:x:0:/" /etc/passwd
 }
 admUser() {
-  useradd speedwagon
+  safeUseradd speedwagon
   if grep -q adm /etc/group; then
     usermod -G adm speedwagon
   fi
 }
 dockerUser() {
-  useradd jonathan
+  safeUseradd jonathan
   usermod -g joestar jonathan
   if grep -q docker /etc/group; then
     usermod -G docker jonathan
   fi
 }
 lxdUser() {
-  useradd josuke
+  safeUseradd josuke
   usermod -g joestar josuke
   if grep -q lxd /etc/group; then
     usermod -G lxd josuke
@@ -71,7 +79,7 @@ lxdUser() {
 }
 typoUser() {
   cp -f /bin/sh /usr/bin/nologin
-  useradd kernpoops
+  safeUseradd kernpoops
   usermod -s "/usr/bin/nologin" kernpoops
 }
 noShadow() {
