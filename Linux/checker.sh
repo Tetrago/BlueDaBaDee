@@ -135,7 +135,7 @@ gshadowPass() {
     correct=$(($correct+1))
   fi
 }
-gshadowPass() {
+gshadowAdmin() {
   if check "grep -e '^sudo:' -e '^wheel:' /etc/gshadow | grep -q joseph" false "josesph is an admin for the sudo/wheel group"; then
     correct=$(($correct+1))
   fi
