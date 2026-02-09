@@ -44,4 +44,74 @@ EOF
   rm "$out.tar.xz"
 }
 
-fetchKernel $@
+identifyDistro() {
+  id=$(
+    . /etc/os-release
+    echo "$ID"
+  )
+
+  if [ $? -eq 0 ] && [ ! -z "$id" ]; then
+    echo "$id"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# $1: Kernel source directory
+configureKernel() {
+  source=$1
+
+  case "$(identifyDistro)" in
+  *debian*)
+    cp /boot/config-$(uname -r) "$1/.config"
+    echo "Importing kernel parameters..."
+    make -C "$1" olddefconfig
+    ;;
+  *)
+    printf "${RED}Warning:${CLEAR} Unable to determine installed distribution\n" >&2
+    echo "Defaulting kernel parameters..."
+    make -C "$1" defconfig
+    ;;
+  esac
+}
+
+# $1: Kernel source directory
+buildKernel() {
+  make -C "$1" -j "$(nproc)"
+}
+
+installBuildDependencies() {
+  case "$(identifyDistro)" in
+  *debian*)
+    echo "Installing build dependencies..."
+    sudo apt-get update
+    sudo apt-get install -y build-essential bison flex libssl-dev libelf-dev bc python3 dwarves
+    return 0
+    ;;
+  *)
+    printf "${RED}Warning:${CLEAR} Unable to determine installed distribution. Cannot install build dependencies\n" >&2
+    echo "Checking for required dependencies..."
+    valid=0
+
+    for x in gcc make bc flex bison ld objcopy objdump ar readelf python3 pahole; do
+      if ! command -v "$x" >/dev/null 2>&1; then
+        printf "${RED}Error:${CLEAR} Missing build dependency: $x\n" >&2
+        valid=1
+      fi
+    done
+
+    if [ "$valid" -ne 0 ]; then
+      printf "${RED}Error:${CLEAR} Missing required build dependencies.\n" >&2
+      return 1
+    else
+      printf "${RED}Warning:${CLEAR} Required build dependencies found, but required libraries may still be missing\n" >&2
+    fi
+    ;;
+  esac
+}
+
+installBuildDependencies
+fetchKernel $1 kernel
+configureKernel kernel
+buildKernel kernel
